@@ -107,6 +107,14 @@ service xl2tpd status
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
 
 
+########################################################
+#Added crontab job for reconnecting L2TP connection:
+
+crontab -l > ftemp
+echo "* * * * * echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control" >> ftemp
+crontab ftemp
+rm ftemp
+
 
 ########################################################
 #To disconnect:
