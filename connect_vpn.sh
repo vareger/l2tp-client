@@ -9,6 +9,7 @@ VPN_IPSEC_PSK=$2 #'your_ipsec_pre_shared_key'
 VPN_USER=$3 #'your_vpn_username'
 VPN_PASSWORD=$4 #'your_vpn_password'
 
+echo "ENV variables setuped"
 
 ########################################################
 #Configure strongSwan:
@@ -104,6 +105,7 @@ service xl2tpd status
 ########################################################
 #Start the L2TP connection:
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
+
 
 
 ########################################################
