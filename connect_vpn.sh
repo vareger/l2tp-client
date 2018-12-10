@@ -2,6 +2,8 @@
 apt-get update
 apt-get -y install strongswan xl2tpd
 
+echo "Dependencies installed"
+
 VPN_SERVER_IP=$1 #'your_vpn_server_ip_or_domain_name'
 VPN_IPSEC_PSK=$2 #'your_ipsec_pre_shared_key'
 VPN_USER=$3 #'your_vpn_username'
@@ -49,9 +51,9 @@ cat > /etc/ipsec.secrets <<EOF
 : PSK "$VPN_IPSEC_PSK"
 EOF
 
-
 chmod 600 /etc/ipsec.secrets
 
+echo "strongSwan configured"
 
 ########################################################
 #Configure xl2tpd:
@@ -83,7 +85,7 @@ EOF
 
 chmod 600 /etc/ppp/options.l2tpd.client
 
-
+echo "xl2tpd configured"
 
 ########################################################
 #Create xl2tpd control file:
@@ -92,15 +94,16 @@ mkdir -p /var/run/xl2tpd
 touch /var/run/xl2tpd/l2tp-control
 
 service strongswan restart
+service strongswan status
+
 service xl2tpd restart
+service xl2tpd status
 
 
 
 ########################################################
 #Start the L2TP connection:
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
-
-
 
 
 ########################################################
