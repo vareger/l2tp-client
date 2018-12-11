@@ -90,6 +90,19 @@ chmod 600 /etc/ppp/options.l2tpd.client
 
 echo "xl2tpd configured"
 
+
+########################################################
+#Create script for reconnection:
+cat > /etc/ppp/reconnect.sh <<EOF
+echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control
+sleep 10
+route add default dev ppp0
+EOF
+
+chmod 777 /etc/ppp/reconnect.sh
+
+
+
 ########################################################
 #Create xl2tpd control file:
 
@@ -107,13 +120,13 @@ service xl2tpd status
 ########################################################
 #Start the L2TP connection:
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
-
+sleep 5
 
 ########################################################
 #Added crontab job for reconnecting L2TP connection:
 add_crontask () {
     crontab -l > ftemp
-    echo "* * * * * echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control; route add default dev ppp0" >> ftemp
+    echo "* * * * * /etc/ppp/reconnect.sh" >> ftemp
     crontab ftemp
     rm ftemp
 }
