@@ -152,6 +152,9 @@ add_routes () {
     #route add YOUR_LOCAL_PC_PUBLIC_IP gw X.X.X.X:
     route add $YOUR_LOCAL_PC_PUBLIC_IP gw $(ip route |grep "default via" | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' |grep -m1 "")
 
+    #route add for DNS server
+    route add $(systemd-resolve --status |grep "DNS Servers:" |grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}') gw $(ip route |grep "default via" | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' |grep -m1 "")
+
     #Add a new default route to start routing traffic via the VPN server：
     route add default dev ppp0
 
