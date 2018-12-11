@@ -9,6 +9,8 @@ VPN_IPSEC_PSK=$2 #'your_ipsec_pre_shared_key'
 VPN_USER=$3 #'your_vpn_username'
 VPN_PASSWORD=$4 #'your_vpn_password'
 
+YOUR_LOCAL_PC_PUBLIC_IP=$(wget -qO- http://ipv4.icanhazip.com) #Getting YOUR_LOCAL_PC_PUBLIC_IP
+
 echo "ENV variables setuped"
 
 ########################################################
@@ -109,12 +111,12 @@ echo "c myvpn" > /var/run/xl2tpd/l2tp-control
 
 ########################################################
 #Added crontab job for reconnecting L2TP connection:
-
-crontab -l > ftemp
-echo "* * * * * echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control" >> ftemp
-crontab ftemp
-rm ftemp
-
+add_crontask () {
+    crontab -l > ftemp
+    echo "* * * * * echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control; route add default dev ppp0" >> ftemp
+    crontab ftemp
+    rm ftemp
+}
 
 ########################################################
 #To disconnect:
@@ -124,3 +126,26 @@ disconnect () {
 }
 
 
+########################################################
+#adding routes:
+
+add_routes () {
+    #Check your existing default route:
+    ip route
+
+    #route add YOUR_VPN_SERVER_IP gw X.X.X.X:
+    route add $VPN_SERVER_IP gw $(ip route |grep "default via" | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' |grep -m1 "")
+
+    #route add YOUR_LOCAL_PC_PUBLIC_IP gw X.X.X.X:
+    route add $YOUR_LOCAL_PC_PUBLIC_IP gw $(ip route |grep "default via" | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' |grep -m1 "")
+
+    #Add a new default route to start routing traffic via the VPN server：
+    route add default dev ppp0
+
+
+    #Verify that your traffic is being routed properly:
+    echo "This is new public IP:"$(wget -qO- http://ipv4.icanhazip.com)
+}
+
+add_routes
+add_crontask
