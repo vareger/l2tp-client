@@ -94,9 +94,10 @@ echo "xl2tpd configured"
 ########################################################
 #Create script for reconnection:
 cat > /etc/ppp/reconnect.sh <<EOF
-echo \"c myvpn\" > /var/run/xl2tpd/l2tp-control
+#!/bin/sh
+echo "c myvpn" > /var/run/xl2tpd/l2tp-control
 sleep 10
-route add default dev ppp0
+sudo route add default dev ppp0
 EOF
 
 chmod 777 /etc/ppp/reconnect.sh
