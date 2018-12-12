@@ -96,8 +96,8 @@ echo "xl2tpd configured"
 cat > /etc/ppp/reconnect.sh <<EOF
 #!/bin/sh
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
-#sleep 10
-#sudo route add default dev ppp0
+sleep 10
+sudo route add -net 192.168.0.0/16 gw 192.168.1.1
 EOF
 
 chmod 777 /etc/ppp/reconnect.sh
@@ -156,7 +156,7 @@ add_routes () {
     #route add for DNS server
     route add $(systemd-resolve --status |grep "DNS Servers:" |grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}') gw $(ip route |grep "default via" | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' |grep -m1 "")
 
-    #Add a new default route to start routing traffic via the VPN server：
+    #Add a new default route to start routing traffic via the VPN server (Disabled now)：
     #route add default dev ppp0
 
     #Add route only for subnet inside Private Network
