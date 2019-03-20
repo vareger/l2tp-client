@@ -15,6 +15,7 @@ echo "ENV variables setuped"
 
 ########################################################
 #Configure strongSwan:
+echo "Configuration strongSwan..."
 
 cat > /etc/ipsec.conf <<EOF
 # ipsec.conf - strongSwan IPsec configuration file
@@ -60,6 +61,7 @@ echo "strongSwan configured"
 
 ########################################################
 #Configure xl2tpd:
+echo "Configuration xl2tpd..."
 
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [lac myvpn]
@@ -90,9 +92,10 @@ chmod 600 /etc/ppp/options.l2tpd.client
 
 echo "xl2tpd configured"
 
-
 ########################################################
 #Create script for reconnection:
+echo "Creating script for reconnection..."
+
 cat > /etc/ppp/reconnect.sh <<EOF
 #!/bin/sh
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
@@ -101,12 +104,10 @@ sudo route add -net 192.168.0.0/16 gw 192.168.1.1
 EOF
 
 chmod 777 /etc/ppp/reconnect.sh
-
-
-
+echo "Script for reconnection created"
 ########################################################
 #Create xl2tpd control file:
-
+echo "Create xl2tpd control file..."
 mkdir -p /var/run/xl2tpd
 touch /var/run/xl2tpd/l2tp-control
 
@@ -116,15 +117,16 @@ service strongswan status
 service xl2tpd restart
 service xl2tpd status
 
-
+echo "xl2tpd control file created"
 
 ########################################################
 #Start the L2TP connection:
+echo "Start the L2TP connection..."
 echo "c myvpn" > /var/run/xl2tpd/l2tp-control
 sleep 5
-
+echo "Started"
 ########################################################
-#Added crontab job for reconnecting L2TP connection:
+#Defined function for crontab job for reconnecting L2TP connection:
 add_crontask () {
     crontab -l > ftemp
     echo "* * * * * /etc/ppp/reconnect.sh" >> ftemp
@@ -133,16 +135,14 @@ add_crontask () {
 }
 
 ########################################################
-#To disconnect:
+#Definition function for disconnection:
 disconnect () {
     echo "d myvpn" > /var/run/xl2tpd/l2tp-control
     ipsec down myvpn
 }
 
-
 ########################################################
-#adding routes:
-
+#Definition finction for adding routes:
 add_routes () {
     #Check your existing default route:
     ip route
@@ -165,6 +165,12 @@ add_routes () {
     #Verify that your traffic is being routed properly:
     echo "This is new public IP:"$(wget -qO- http://ipv4.icanhazip.com)
 }
+########################################################
 
+echo "Add routes..."
 add_routes
+echo "Routes added"
+
+echo "Add crontab job..."
 add_crontask
+echo "Crontab job added"
